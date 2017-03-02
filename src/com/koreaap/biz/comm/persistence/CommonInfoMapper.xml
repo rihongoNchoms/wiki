@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.koreaap.biz.comm.persistence.CommonInfoMapper">
+     
+    <select id="findGridColInfo" parameterType="hashmap" resultType="hashmap">
+    	SELECT * FROM WIKI_GRID_COL_INFO
+		WHERE CODE_ID = #{target}
+    </select>
+    
+</mapper>

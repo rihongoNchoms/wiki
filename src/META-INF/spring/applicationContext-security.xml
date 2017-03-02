@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="
+      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+      http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+	
+	<!-- ajax 세션 체크 --> 		
+	<beans:bean id="ajaxSessionTimeoutFilter" class="com.koreaap.sys.framework.AjaxSessionTimeoutFilter">
+	</beans:bean>
+	
+	<http auto-config="true" use-expressions="true" disable-url-rewriting="true">
+
+		<!-- 로컬 테스트용 (모든 접속 허용) -->
+<!-- 		<intercept-url pattern="/**" access="permitAll" /> -->
+		
+		<intercept-url pattern="/resources/**" filters="none"/>
+		<!-- 운영 -->
+		<intercept-url pattern="/**/*.jpg" 						filters="none" />
+		<intercept-url pattern="/**/*.gif" 						filters="none" />
+		<intercept-url pattern="/**/*.png" 						filters="none" />
+		<intercept-url pattern="/**/*.css" 						filters="none" />
+		<intercept-url pattern="/**/*.js" 						filters="none" />
+		<intercept-url pattern="/**/*.ppt" 						filters="none" />
+		<intercept-url pattern="/**/*.doc" 						filters="none" />
+		<intercept-url pattern="/**/*.xls" 						filters="none" />
+		<intercept-url pattern="/**/*.swf" 						filters="none" />
+		<intercept-url pattern="/**/*.xml" 						filters="none" />
+		<intercept-url pattern="/**/*.cab" 						filters="none" />
+		<intercept-url pattern="/**/*.exe" 						filters="none" />
+		<intercept-url pattern="/**/*.reb" 						filters="none" />
+		<intercept-url pattern="/**/*.htm" 						filters="none" />
+		<intercept-url pattern="/**/*.ico" 						filters="none" />
+		 		
+	 	<intercept-url pattern="/admin/login*" access="permitAll" />
+	 	<intercept-url pattern="/admin/*" access="hasAnyRole('ROLE_ADMIN')" />
+	 	
+<!-- 	 	<intercept-url pattern="/excelDownload" access="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')" /> -->
+	 	
+	 	<!-- 관리자용 -->
+<!-- 	 	<intercept-url pattern="/userInfo.do" access="hasAnyRole('ROLE_ADMIN')" /> -->
+<!-- 	 	<intercept-url pattern="/userlogInfo.do" access="hasAnyRole('ROLE_ADMIN')" /> -->
+
+		<!-- 그 외 모든 접속은 로그인 없이 접속하도록 설정 -->
+	 	<intercept-url pattern="/**" access="permitAll" />
+	 	
+	 	<!-- 권한 에러 시 에러페이지로 이동 -->
+	 	<access-denied-handler error-page="/notAccessPage" />
+	 	
+	 	<!-- 로그인 페이지 및 성공 유무 핸들러 처리 -->
+	 	<form-login login-page="/admin/login" 
+	 		authentication-success-handler-ref="customAuthenticationSuccessHandler"
+	 		authentication-failure-handler-ref="customAuthenticationFailureHandler" />
+	 	
+	 	<!-- ajax 세션 체크 -->
+	 	<custom-filter ref="ajaxSessionTimeoutFilter" after="EXCEPTION_TRANSLATION_FILTER"/>
+	</http>
+	
+	<authentication-manager alias="authenticationManager">
+		<authentication-provider ref="customAuthenticationProvider">
+			<password-encoder ref="passwordEncoder">
+				<salt-source ref="saltSource"/>
+			</password-encoder>
+		</authentication-provider>
+	</authentication-manager>
+	
+	<!-- 사용자 인증 성공 시 handler -->
+	<beans:bean id="customAuthenticationSuccessHandler" class="com.koreaap.sys.security.authentication.CustomAuthenticationSuccessHandler">
+	</beans:bean>	
+	
+	<!-- 사용자 인증 실패 시 handler -->
+	<beans:bean id="customAuthenticationFailureHandler" class="com.koreaap.sys.security.authentication.CustomAuthenticationFailureHandler">
+	</beans:bean>	
+	
+	<!-- 사용자 인증 provider -->
+	<beans:bean id="customAuthenticationProvider" class="com.koreaap.sys.security.authentication.CustomAuthenticationProvider">
+		<beans:property name="userDetailsService" ref="jdbcUserService"></beans:property>
+	</beans:bean>
+	
+	<beans:bean id="passwordEncoder" class="org.springframework.security.authentication.encoding.ShaPasswordEncoder">
+		<beans:constructor-arg value="256"/> 
+	</beans:bean>
+	
+	<beans:bean id="saltSource" class="org.springframework.security.authentication.dao.ReflectionSaltSource" p:userPropertyToUse="username"/>
+	
+	<beans:bean id="jdbcUserService" class="com.koreaap.sys.security.userDetails.CustomJdbcDaoImpl">
+		<beans:property name="dataSource" ref="dataSource" />
+		<beans:property name="usersByUsernameQuery">
+			<beans:value>
+				SELECT USER_ID, USER_PWD, 'true' as enable
+				, IP_ALLOW_YN, ALLOW_IP1, ALLOW_IP2, ALLOW_IP3
+				, CASE WHEN PWD_CHG_DATE is null THEN 'N'
+          		ELSE 'Y' END CH_PWD_YN
+				FROM WIKI_USER_INFO
+				WHERE USER_ID = ?
+				AND USE_YN = 'Y'
+			</beans:value>
+		</beans:property>
+		<beans:property name="authoritiesByUsernameQuery">
+			<beans:value>
+				SELECT	USER_ID
+				       ,CASE WHEN ADMIN_YN = 'Y' THEN 'ROLE_ADMIN'
+				             ELSE 'ROLE_USER' 
+				        END AS AUTHORITY
+				FROM WIKI_USER_INFO
+				WHERE USER_ID = ?
+				AND USE_YN = 'Y'
+			</beans:value>
+		</beans:property>
+	</beans:bean>
+	
+</beans:beans>

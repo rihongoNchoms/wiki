@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.koreaap.biz.main.persistence.MainMapper">
+     
+    <select id="findTopMenu" resultType="mainForm">
+    	-- TOP MENU
+		WITH CTE_TABLE
+		AS
+		(
+		       SELECT 0 AS LEVEL, A.FORM_ID, PARENT_FORM_ID, FORM_NAME, CONVERT(VARCHAR(100), CAST(A.FORM_NAME AS VARCHAR(100)) + ' > ') AS FORM_NAME
+		       , CONVERT(VARCHAR(255), A.SORT_SEQ) AS SORT
+           	   , CONVERT(VARCHAR(255), '0') AS SORT_O
+               , A.USE_YN, A.PATH_URL
+		       FROM DBO.WIKI_FORM_LIST A
+		       WHERE A.PARENT_FORM_ID IS NULL
+		       UNION ALL
+		       SELECT LEVEL + 1, M.FORM_ID, M.PARENT_FORM_ID, M.FORM_NAME, CONVERT(VARCHAR(100), N.FORM_NAME + ' > ' + CAST(M.FORM_NAME AS VARCHAR(100)) + ' > ' ) AS FORM_NAME
+		       , CONVERT(VARCHAR(255), CONVERT(NVARCHAR,N.SORT) + CONVERT(NVARCHAR,M.SORT_SEQ)  ) AS SORT
+               , CONVERT(VARCHAR(255), CONVERT(NVARCHAR,N.SORT)) AS SORT_O
+		       , M.USE_YN, M.PATH_URL
+		       FROM DBO.WIKI_FORM_LIST M JOIN CTE_TABLE N ON M.PARENT_FORM_ID = N.FORM_ID
+		)
+		SELECT LEVEL, SORT_O AS PNO
+		, SORT AS NO
+    	, FORM_ID AS FORM_ID
+		, FORM_NAME AS LABEL
+    	, PARENT_FORM_ID AS PARENT_FORM_ID
+    	, PATH_URL AS URL
+		, 'FILE' AS TYPE
+		, 1 AS 'OPEN'
+    	, USE_YN
+		FROM CTE_TABLE
+		ORDER BY SORT
+    </select>
+    
+    <select id="findTreeMenu" resultType="mainForm">
+    	-- TREE GRID
+		WITH CTE_TABLE
+		AS
+		(
+		       SELECT 0 AS LEVEL, A.FORM_ID, PARENT_FORM_ID, FORM_NAME, CONVERT(VARCHAR(100), CAST(A.FORM_NAME AS VARCHAR(100)) + ' > ') AS FORM_NAME
+		       , CONVERT(VARCHAR(255), RIGHT(N'00'+RTRIM(A.SORT_SEQ),3)  ) AS SORT
+           	   , CONVERT(VARCHAR(255), '') AS SORT_O
+               , A.USE_YN, A.PATH_URL
+		       FROM DBO.WIKI_FORM_LIST A
+		       WHERE A.PARENT_FORM_ID IS NULL
+		       UNION ALL
+		       SELECT LEVEL + 1, M.FORM_ID, M.PARENT_FORM_ID, M.FORM_NAME, CONVERT(VARCHAR(100), N.FORM_NAME + ' > ' + CAST(M.FORM_NAME AS VARCHAR(100)) + ' > ' ) AS FORM_NAME
+		       , CONVERT(VARCHAR(255), CONVERT(NVARCHAR,N.SORT) + RIGHT(N'00'+RTRIM(M.SORT_SEQ),3)  ) AS SORT
+               , CONVERT(VARCHAR(255), CONVERT(NVARCHAR,N.SORT)) AS SORT_O
+		       , M.USE_YN, M.PATH_URL
+		       FROM DBO.WIKI_FORM_LIST M JOIN CTE_TABLE N ON M.PARENT_FORM_ID = N.FORM_ID
+		)
+		SELECT LEVEL, SORT_O AS PNO
+		, SORT AS NO
+    	, FORM_ID AS FORM_ID
+		, FORM_NAME AS LABEL
+    	, PARENT_FORM_ID AS PARENT_FORM_ID
+    	, PATH_URL AS URL
+		, 'FILE' AS TYPE
+		, 1 AS 'OPEN'
+    	, USE_YN
+		FROM CTE_TABLE
+		ORDER BY SORT
+    </select>
+    
+    <select id="findCrudTest" parameterType="hashmap" resultType="camelCaseMap">
+		  SELECT * FROM WIKI_MAIN_MENU_INFO
+    </select>
+    
+    <update id="updateCrudTest" parameterType="hashmap">
+    	  UPDATE WIKI_MAIN_MENU_INFO
+    	  SET MENU_NAME = #{menuName}
+    	  , MENU_LINK = #{menuLink}
+    	  , MENU_TYPE = #{menuType}
+    	  , MENU_GRP = #{menuGrp}
+    	  , USE_YN = #{useYn}
+    	  WHERE MENU_ID = #{menuId}
+    </update>
+    
+</mapper>

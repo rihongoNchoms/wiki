@@ -1,0 +1,18 @@
+
+.navbar-inverse {
+	background: #205081;
+}
+
+.navbar-inverse .navbar-brand {
+	color: #ece7e7;
+}
+
+.navbar-inverse .navbar-nav>li>a {
+	color: #ece7e7;
+}
+
+.btmTag {
+	padding: 5px;
+	color: #807c7c;
+	font-size: 12px;
+}
