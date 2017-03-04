@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workbook>
+	<worksheet idx="0">
+		<section startRow="0" endRow="0">
+		</section>
+        <loop startRow="1" endRow="1" items="list" var="formColumnInfo" varType="com.koreaap.biz.admin.formListInfo.domain.FormColumnInfo">
+			<section startRow="1" endRow="1">
+				<mapping row="1" col="0">formColumnInfo.codeId</mapping>
+				<mapping row="1" col="1">formColumnInfo.sortSeq</mapping>
+				<mapping row="1" col="2">formColumnInfo.colId</mapping>
+				<mapping row="1" col="3">formColumnInfo.colName</mapping>
+				<mapping row="1" col="4">formColumnInfo.colWidth</mapping>
+				<mapping row="1" col="5">formColumnInfo.colAlign</mapping>
+				<mapping row="1" col="6">formColumnInfo.colEditor</mapping>
+				<mapping row="1" col="7">formColumnInfo.sortAble</mapping>
+			</section>
+			<loopbreakcondition>
+				<rowcheck offset="0">
+					<cellcheck offset="0"></cellcheck>
+				</rowcheck>
+			</loopbreakcondition>
+		</loop>
+	</worksheet>
+</workbook>

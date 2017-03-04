@@ -1,0 +1,93 @@
+
+<!-- chart 코딩 설명 -->
+<div class="ax-layer">
+	<div class="ax-col-12 ax-content">
+		<div class="ax-unit">
+			<div class="ax-box">
+				<div class="ax-box-wrap">
+					<h1>
+						[CHART SAMPLE]
+					</h1>
+					<p>- view 화면 (.jsp) 코딩 </p>
+					
+					<div class="tag-result">
+						<div class="containerBox" id="ax-scroll-02-target" style="width:100%;height:100px;border:1px solid #ccc;">
+							<div class="inBox" id="ax-scroll-02-content">
+								<div style="width:800px;">
+									<pre>
+&lt;div class="ax-col-12"&gt;
+	&lt;div class="ax-unit"&gt;
+		&lt;div class="ax-box"&gt;
+			&lt;div class="ax-box-wrap"&gt;
+				&lt;h1&gt;
+					Line Chart (line)
+				&lt;/h1&gt;
+				&lt;canvas id="chart-canvas-line" width="500" height="200" style="width: 400px; min-height: 256px;"&gt;&lt;/canvas&gt;
+			&lt;/div&gt;
+		&lt;/div&gt;
+		&lt;div class="ax-clear"&gt;&lt;/div&gt;
+		&lt;div class="H20"&gt;&lt;/div&gt;
+	&lt;/div&gt;
+&lt;/div&gt;
+									</pre>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<p>- 스크립트 (.js) 코딩 </p>
+					
+					<div class="tag-result">
+						<div class="containerBox" id="ax-scroll-03-target" style="width:100%;height:100px;border:1px solid #ccc;">
+							<div class="inBox" id="ax-scroll-03-content">
+								<div style="width:800px;">
+									<pre>
+var testData = [[1,2],[3,4]];
+
+var lineData = {
+		type: "line",
+		chartOption: {
+			labels: ["January", "February", "March", "April", "May", "June", "July"], 
+			data: testData, 
+			seriesName: ["aaa", "bbb"] 
+		},
+		yAxisOption: [{
+			title: "Test Y",
+			tickFormatNum: 2
+		}]
+};
+
+cfDrawChart(lineData, "chart-canvas-line");
+									</pre>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+			<div class="ax-clear"></div>
+			<div class="H20"></div>
+		</div>
+	</div>
+	<div class="ax-clear"></div>
+</div>
+
+<script>
+	(function(){
+		var myUIScroll = new AXScroll(); // 스크롤 인스턴스 선언
+		myUIScroll.setConfig({
+			targetID:"ax-scroll-02-target",
+			scrollID:"ax-scroll-02-content",
+			yscroll:false,
+			xscroll:true
+		});
+		var myUIScroll2 = new AXScroll(); // 스크롤 인스턴스 선언
+		myUIScroll2.setConfig({
+			targetID:"ax-scroll-03-target",
+			scrollID:"ax-scroll-03-content",
+			yscroll:false,
+			xscroll:true
+		});
+	})();
+</script>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.koreaap.biz.admin.formListInfo.persistence.FormListInfoMapper">
+     
+    <select id="findMenuInfo" resultType="formListInfoStd">
+    	WITH CTE_TABLE
+		AS
+		(
+		       SELECT 0 AS LEVEL, A.FORM_ID, PARENT_FORM_ID, FORM_NAME, CONVERT(VARCHAR(100), CAST(A.FORM_NAME AS VARCHAR(100)) + ' > ') AS FORM_NAME
+		       , CONVERT(VARCHAR(255), RIGHT(N'00'+RTRIM(A.SORT_SEQ),3)  ) AS SORT
+           	   , CONVERT(VARCHAR(255), '') AS SORT_O
+               , A.USE_YN, A.PATH_URL, A.SORT_SEQ
+		       FROM DBO.WIKI_FORM_LIST A
+		       WHERE A.PARENT_FORM_ID IS NULL
+		       UNION ALL
+		       SELECT LEVEL + 1, M.FORM_ID, M.PARENT_FORM_ID, M.FORM_NAME, CONVERT(VARCHAR(100), N.FORM_NAME + ' > ' + CAST(M.FORM_NAME AS VARCHAR(100)) + ' > ' ) AS FORM_NAME
+		       , CONVERT(VARCHAR(255), CONVERT(NVARCHAR,N.SORT) + RIGHT(N'00'+RTRIM(M.SORT_SEQ),3)  ) AS SORT
+               , CONVERT(VARCHAR(255), CONVERT(NVARCHAR,N.SORT)) AS SORT_O
+		       , M.USE_YN, M.PATH_URL, M.SORT_SEQ
+		       FROM DBO.WIKI_FORM_LIST M JOIN CTE_TABLE N ON M.PARENT_FORM_ID = N.FORM_ID
+		)
+		SELECT FORM_ID
+         , FORM_NAME
+         , PARENT_FORM_ID
+         , SORT_SEQ
+         , PATH_URL
+         , USE_YN
+         , LEVEL
+		FROM CTE_TABLE
+		ORDER BY SORT
+    </select>
+    
+    <select id="findMenuInfoOrg" resultType="formListInfo">
+    	-- TREE GRID
+		WITH CTE_TABLE
+		AS
+		(
+		       SELECT 0 AS LEVEL, A.FORM_ID, PARENT_FORM_ID, FORM_NAME, CONVERT(VARCHAR(100), CAST(A.FORM_NAME AS VARCHAR(100)) + ' > ') AS FORM_NAME
+		       , CONVERT(VARCHAR(255), RIGHT(N'00'+RTRIM(A.SORT_SEQ),3)  ) AS SORT
+           	   , CONVERT(VARCHAR(255), '') AS SORT_O
+               , A.USE_YN, A.PATH_URL
+		       FROM DBO.WIKI_FORM_LIST A
+		       WHERE A.PARENT_FORM_ID IS NULL
+		       UNION ALL
+		       SELECT LEVEL + 1, M.FORM_ID, M.PARENT_FORM_ID, M.FORM_NAME, CONVERT(VARCHAR(100), N.FORM_NAME + ' > ' + CAST(M.FORM_NAME AS VARCHAR(100)) + ' > ' ) AS FORM_NAME
+		       , CONVERT(VARCHAR(255), CONVERT(NVARCHAR,N.SORT) + RIGHT(N'00'+RTRIM(M.SORT_SEQ),3)  ) AS SORT
+               , CONVERT(VARCHAR(255), CONVERT(NVARCHAR,N.SORT)) AS SORT_O
+		       , M.USE_YN, M.PATH_URL
+		       FROM DBO.WIKI_FORM_LIST M JOIN CTE_TABLE N ON M.PARENT_FORM_ID = N.FORM_ID
+		)
+		SELECT LEVEL, SORT_O AS PNO
+		, SORT AS NO
+    	, FORM_ID AS FORM_ID
+		, FORM_NAME AS LABEL
+    	, PARENT_FORM_ID AS PARENT_FORM_ID
+    	, PATH_URL AS URL
+		, 'FILE' AS TYPE
+		, 1 AS 'OPEN'
+    	, USE_YN
+		FROM CTE_TABLE
+		ORDER BY SORT
+    </select>
+    
+    <update id="updateMenuInfo" parameterType="hashmap">
+    	  UPDATE WIKI_FORM_LIST
+    	  SET FORM_NAME = #{formName}
+    	  , SORT_SEQ = #{sortSeq}
+    	  , PARENT_FORM_ID = #{parentFormId}
+    	  , PATH_URL = #{pathUrl}
+    	  , USE_YN = #{useYn}
+    	  WHERE FORM_ID = #{formId}
+    </update>
+    
+    <insert id="insertMenuInfo"  parameterType="hashmap">
+    	INSERT INTO WIKI_FORM_LIST (
+    		FORM_ID
+    	  , FORM_NAME
+    	  , SORT_SEQ
+    	  , PARENT_FORM_ID
+    	  , PATH_URL
+    	  , USE_YN
+    	)
+    	VALUES (
+    		#{formId}
+    	  , #{formName}
+    	  , #{sortSeq}
+    	  , #{parentFormId}
+    	  , #{pathUrl}
+    	  , #{useYn}
+    	)
+    </insert>
+    
+    <delete id="deleteMenuInfo" parameterType="hashmap">
+    	DELETE FROM WIKI_FORM_LIST
+    	WHERE FORM_ID = #{formId}
+    </delete>
+    
+    <select id="findColInfoList" resultType="formColumnInfo">
+    	SELECT CODE_ID
+		  ,SORT_SEQ
+		  ,COL_ID
+		  ,COL_NAME
+		  ,COL_WIDTH
+		  ,COL_ALIGN
+		  ,COL_EDITOR
+		  ,SORT_ABLE
+		FROM WIKI_GRID_COL_INFO
+    </select>
+    
+    <update id="updateColumnInfo" parameterType="formColumnInfo">
+    	  UPDATE WIKI_GRID_COL_INFO
+    	  SET COL_ID = #{colId}
+    	  , COL_NAME = #{colName}
+    	  , COL_WIDTH = #{colWidth}
+    	  , COL_ALIGN = #{colAlign}
+    	  , COL_EDITOR = #{colEditor}
+    	  , SORT_ABLE = #{sortAble}
+    	  WHERE CODE_ID = #{codeId}
+    	  AND SORT_SEQ = #{sortSeq}
+    </update>
+    
+    <insert id="insertColumnInfo"  parameterType="formColumnInfo">
+    	INSERT INTO WIKI_GRID_COL_INFO (
+    		CODE_ID
+    	  , SORT_SEQ
+    	  , COL_ID
+    	  , COL_NAME
+    	  , COL_WIDTH
+    	  , COL_ALIGN
+    	  , COL_EDITOR
+    	  , SORT_ABLE
+    	)
+    	VALUES (
+    		#{codeId}
+    	  , #{sortSeq}
+    	  , #{colId}
+    	  , #{colName}
+    	  , #{colWidth}
+    	  , #{colAlign}
+    	  , #{colEditor}
+    	  , #{sortAble}
+    	)
+    </insert>
+    
+    <delete id="deleteColumnInfo" parameterType="formColumnInfo">
+    	DELETE FROM WIKI_GRID_COL_INFO
+    	WHERE CODE_ID = #{codeId}
+    	AND SORT_SEQ = #{sortSeq}
+    </delete>
+    
+</mapper>

@@ -1,0 +1,26 @@
+/**
+* Custom Style Sheet
+*/
+
+/* top menu 배경 이미지 제거 */
+#AXPage .ax-header {
+	z-index: 300;
+    height: 57px;
+    position: fixed;
+    width: 100%;
+    background-image: none;
+    background-color: black;
+    opacity: 0.95;
+}
+
+/* 조회 조건 내 th 컬럼 색상 변경 */
+.AXSearch .searchGroup .searchItem .itemTable span.th {
+	display: table-cell;
+    color: white;
+    background: #616161;
+    border-right: 1px solid #d8d8d8;
+    min-height: 20px;
+    line-height: 20px;
+    padding: 10px 0;
+    box-sizing: content-box;
+}

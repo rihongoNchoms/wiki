@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.koreaap.biz.admin.logInfo.persistence.LogInfoMapper">
+     
+    <select id="findLogInfo" resultType="camelCaseMap" parameterType="hashmap">
+    	SELECT convert(varchar(16), SYS_DATE, 120) as SYS_DATE
+		, USER_ID
+		, FORM_ID
+		, CASE DB_JOB_TYPE 
+		    WHEN 'R' THEN '조회'
+		    WHEN 'U' THEN '수정'
+		    WHEN 'E' THEN '엑셀다운'
+		  END DB_JOB_TYPE
+		, IP_ADDR
+		FROM USER_LOG
+		WHERE convert(varchar(10), SYS_DATE, 120) BETWEEN #{fromDate} AND #{toDate}
+		<if test="userId != ''">
+		AND USER_ID = #{userId}
+		</if>
+		<if test="searchType != ''">
+		AND DB_JOB_TYPE = #{searchType}
+		</if>
+		ORDER BY SYS_DATE DESC
+    </select>
+    
+    
+</mapper>
