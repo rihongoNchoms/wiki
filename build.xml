@@ -6,6 +6,7 @@
               as the first entry and export the buildfile again. -->
 <project basedir="/home/ec2-user/.jenkins/jobs/kapmou/workspace/kapmou" name="kapmou">
 	 
+	
 	<property name="project.name" value="kapmou" />
 	<property name="deploy.host" value="52.78.82.31" />
 	<property name="deploy.user" value="ec2-user" />
